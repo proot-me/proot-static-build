@@ -1,4 +1,4 @@
-proot-version  = proot-v2.4
+proot-version  = proot-v2.4.1
 talloc-version = talloc-2.0.8
 python-version = Python-2.7.3
 
