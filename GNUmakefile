@@ -1,4 +1,4 @@
-proot-version  = proot-v2.4.1
+proot-version  = proot-v3.1
 talloc-version = talloc-2.0.8
 python-version = Python-2.7.3
 
@@ -32,6 +32,8 @@ proot = proot -B $(extra-opts)
 
 proot-%: rootfs-%
 	tar -C $< -xf $(package-proot)
+	$(proot) -w /$(proot-version) $< sed -i s/-Wextra// src/GNUmakefile
+	$(proot) -w /$(proot-version) $< sh -c 'echo "" > /usr/include/linux/prefetch.h'
 	$(proot) -w /$(proot-version) $< make -j 2 -C src LDFLAGS="-static /$(talloc-version)/libtalloc.a"
 	cp $</$(proot-version)/src/proot $@
 
@@ -39,6 +41,8 @@ rootfs-%:
 	mkdir $@
 	tar -C $@ -xjf $(package-rootfs-$*) 2>/dev/null || true
 	cp packages/queue.h $@/usr/include/sys/queue.h
+	cp packages/linux-auxvec.h $@/usr/include/linux/auxvec.h
+	cp packages/asm-auxvec.h $@/usr/include/asm/auxvec.h
 
 	$(skip-python) tar -C $@ -xf $(package-python)
 	$(skip-python) $(proot) -w /$(python-version) $@ ./configure
