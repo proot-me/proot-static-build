@@ -1,54 +1,145 @@
-proot-version  = proot-v3.1
-talloc-version = talloc-2.0.8
-python-version = Python-2.7.3
+# How to build PRoot and CARE statically:
+# x86_64: proot -R slackware64-14.0/  make ...
+# x86:    proot -R slackware-14.0/    make ...
+# arm:    proot -R slackwarearm-14.1/ -b $(which cmake) make glibc-version=glibc-2.18 ...
 
-package-rootfs-x86_64 = packages/stage3-amd64-2005.0.tar.bz2
-package-rootfs-x86    = packages/stage3-x86-2005.0.tar.bz2
-package-rootfs-sh4    = packages/stage3-sh4-2006.1.tar.bz2
-package-rootfs-arm    = packages/fc6-arm-root-with-gcc.tar.bz2
+proot-version      = proot-v3.2
+care-version       = care-v2.0
+glibc-version      = glibc-2.16.0
+libtalloc-version  = talloc-2.1.0
+libarchive-version = libarchive-3.1.2
+libz-version       = zlib-1.2.8
+liblzo-version     = lzo-2.06
 
-package-proot  = packages/$(proot-version).tar.gz
-package-talloc = packages/$(talloc-version).tar.gz
-package-python = packages/$(python-version).tar.xz
+glibc-license      = sh -c '$(prefix)/lib/libc.so.6; cat $(glibc-version)/LICENSES; head -n 16 $(glibc-version)/io/open.c'
+libtalloc-license  = head -n 27 $(libtalloc-version)/talloc.c
+libarchive-license = cat $(libarchive-version)/COPYING
+libz-license       = head -n 29 $(libz-version)/zlib.h
+liblzo-license     = head -n 41 $(liblzo-version)/src/lzo1.c
 
-talloc-objects = bin/default/talloc_3.o bin/default/lib/replace/replace_2.o bin/default/lib/replace/getpass_2.o
+libc_a       = $(prefix)/lib/libc.a
+libtalloc_a  = $(prefix)/lib/libtalloc.a
+libarchive_a = $(prefix)/lib/libarchive.a
+libz_a       = $(prefix)/lib/libz.a
+liblzo_a     = $(prefix)/lib/liblzo2.a
 
-targets = x86_64 x86 arm sh4
+env = CFLAGS="-O2 -isystem $(prefix)/include" LDFLAGS="-L$(prefix)/lib"
 
-all: $(addprefix proot-,$(targets))
-
-clean:
-	rm -f $(addprefix proot-,$(targets))
-	rm -fr $(addprefix rootfs-,$(targets))
-
-%-arm: skip-python = true
-%-sh4: skip-python = true
-
-# Note: it requires a fixed version of QEMU/SH4
-%-arm: extra-opts = -q qemu-arm -b $(shell which make)
-%-sh4: extra-opts = -q qemu-sh4
-
-proot = proot -B $(extra-opts)
-
-proot-%: rootfs-%
-	tar -C $< -xf $(package-proot)
-	$(proot) -w /$(proot-version) $< sed -i s/-Wextra// src/GNUmakefile
-	$(proot) -w /$(proot-version) $< sh -c 'echo "" > /usr/include/linux/prefetch.h'
-	$(proot) -w /$(proot-version) $< make -j 2 -C src LDFLAGS="-static /$(talloc-version)/libtalloc.a"
-	cp $</$(proot-version)/src/proot $@
-
-rootfs-%:
+VPATH := $(dir $(lastword $(MAKEFILE_LIST)))
+packages = $(VPATH)/packages
+prefix = $(PWD)/prefix
+$(prefix):
 	mkdir $@
-	tar -C $@ -xjf $(package-rootfs-$*) 2>/dev/null || true
-	cp packages/queue.h $@/usr/include/sys/queue.h
-	cp packages/linux-auxvec.h $@/usr/include/linux/auxvec.h
-	cp packages/asm-auxvec.h $@/usr/include/asm/auxvec.h
 
-	$(skip-python) tar -C $@ -xf $(package-python)
-	$(skip-python) $(proot) -w /$(python-version) $@ ./configure
-	$(skip-python) $(proot) -w /$(python-version) $@ make -j 2 install
+$(libc_a):
+	tar -xzf $(packages)/$(glibc-version).tar.gz
+	mkdir $(glibc-version)/build
+	cd $(glibc-version)/build 					&& \
+	  ../configure --enable-kernel=2.6.0 --prefix=$(prefix)		&& \
+	  $(MAKE)							&& \
+	  $(MAKE) install
 
-	tar -C $@ -xf $(package-talloc)
-	$(proot) -w /$(talloc-version) $@ ./configure --disable-python
-	$(proot) -w /$(talloc-version) $@ make -j 2 install
-	$(proot) -w /$(talloc-version) $@ ar qf libtalloc.a $(talloc-objects)
+$(libtalloc_a): $(libc_a)
+	tar -xzf $(packages)/$(libtalloc-version).tar.gz
+	cd $(libtalloc-version) 					&& \
+	  $(env) ./configure --prefix=$(prefix)				&& \
+	  $(MAKE) 							&& \
+	  ar qf $@ bin/default/talloc_3.o
+
+$(libarchive_a): $(libc_a) $(libz_a) $(liblzo_a)
+	tar -xzf $(packages)/$(libarchive-version).tar.gz
+	cd $(libarchive-version) 					&& \
+	  $(env) cmake -DCMAKE_INSTALL_PREFIX:PATH=$(prefix) .		&& \
+	  $(MAKE)							&& \
+	  $(MAKE) install
+
+$(libz_a): $(libc_a)
+	tar -xzf $(packages)/$(libz-version).tar.gz
+	cd $(libz-version) 						&& \
+	  $(env) ./configure --prefix=$(prefix)				&& \
+	  $(MAKE)							&& \
+	  $(MAKE) install
+
+$(liblzo_a): $(libc_a)
+	tar -xzf $(packages)/$(liblzo-version).tar.gz
+	cd $(liblzo-version) 						&& \
+	  $(env) ./configure --enable-shared --prefix=$(prefix)		&& \
+	  $(MAKE)							&& \
+	  $(MAKE) install
+
+all_libs_a = $(libc_a) $(libtalloc_a) $(libarchive_a) $(libz_a) $(liblzo_a)
+
+proot-licenses: $(libc_a) $(libtalloc_a)
+	@echo "This version of PRoot is statically linked to the following software." >> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "glibc:" >> $@
+	@echo "" >> $@
+	@$(glibc-license) >> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "libtalloc:" >> $@
+	@echo "" >> $@
+	@$(libtalloc-license) >> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "The build-system, sources and licences are available on:" >> $@
+	@echo "" >> $@
+	@echo "    https://github.com/cedric-vincent/proot-static-build">> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "" >> $@
+
+care-licenses: $(all_libs_a)
+	@echo "This version of CARE is statically linked to the following software." >> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "proot:" >> $@
+	@echo "" >> $@
+	@echo " * Copyright (C) 2013 STMicroelectronics" >> $@
+	@echo " *" >> $@
+	@echo " * This program is free software; you can redistribute it and/or" >> $@
+	@echo " * modify it under the terms of the GNU General Public License as" >> $@
+	@echo " * published by the Free Software Foundation; either version 2 of the" >> $@
+	@echo " * License, or (at your option) any later version." >> $@
+	@echo " *" >> $@
+	@echo " * This program is distributed in the hope that it will be useful, but" >> $@
+	@echo " * WITHOUT ANY WARRANTY; without even the implied warranty of" >> $@
+	@echo " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU" >> $@
+	@echo " * General Public License for more details." >> $@
+	@echo " *" >> $@
+	@echo " * You should have received a copy of the GNU General Public License" >> $@
+	@echo " * along with this program; if not, write to the Free Software" >> $@
+	@echo " * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA" >> $@
+	@echo " * 02110-1301 USA." >> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "glibc:" >> $@
+	@echo "" >> $@
+	@$(glibc-license) >> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "libtalloc:" >> $@
+	@echo "" >> $@
+	@$(libtalloc-license) >> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "libarchive:" >> $@
+	@echo "" >> $@
+	@$(libarchive-license) >> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "zlib:" >> $@
+	@echo "" >> $@
+	@$(libz-license) >> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "liblzo:" >> $@
+	@echo "" >> $@
+	@$(liblzo-license) >> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "The build-system, sources and licences are available on:" >> $@
+	@echo "" >> $@
+	@echo "    https://github.com/cedric-vincent/proot-static-build">> $@
+	@echo "------------------------------------------------------------------------" >> $@
+	@echo "" >> $@
+
+care: $(all_libs_a) care-licenses
+	tar -xzf $(packages)/$(care-version).tar.gz
+	cp care-licenses $(care-version)/src/licenses
+	env LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include" make -C $(care-version)/src/ CARE=1
+
+proot: $(libc_a) $(libtalloc_a) proot-licenses
+	tar -xzf $(packages)/$(proot-version).tar.gz
+	cp proot-licenses $(proot-version)/src/licenses
+	env LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" make -C $(proot-version)/src/
