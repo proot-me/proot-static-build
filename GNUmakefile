@@ -1,7 +1,21 @@
-# How to build PRoot and CARE statically:
-# x86_64: proot -R slackware64-14.0/  make ...
-# x86:    proot -R slackware-14.0/    make ...
-# arm:    proot -R slackwarearm-14.1/ -b $(which cmake) make glibc-version=glibc-2.18 ...
+# How to build PRoot and CARE statically on Slackware64-14.1:
+#
+# for x86_64:	proot -R slackware64-14.0/		\
+#			-b /usr/include/linux/prctl.h	\
+#			-b /usr/include/linux/seccomp.h	\
+#			make ...
+#
+# for x86:	proot -R slackware-14.0/    make ...
+#			-b /usr/include/linux/prctl.h	\
+#			-b /usr/include/linux/seccomp.h	\
+#			make ...
+#
+# for arm:	proot -R slackwarearm-14.1/		\
+#			-b /usr/include/linux/prctl.h	\
+#			-b /usr/include/linux/seccomp.h	\
+#			-b $(which cmake)		\
+#			-q qemu-arm			\
+#			make glibc-version=glibc-2.18 ...
 
 proot-version      = proot-v3.2
 care-version       = care-v2.0
@@ -137,9 +151,9 @@ care-licenses: $(all_libs_a)
 care: $(all_libs_a) care-licenses
 	tar -xzf $(packages)/$(care-version).tar.gz
 	cp care-licenses $(care-version)/src/licenses
-	env LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include" make -C $(care-version)/src/ CARE=1
+	env LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include" make -C $(care-version)/src/ CARE=1 GIT=false
 
 proot: $(libc_a) $(libtalloc_a) proot-licenses
 	tar -xzf $(packages)/$(proot-version).tar.gz
 	cp proot-licenses $(proot-version)/src/licenses
-	env LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" make -C $(proot-version)/src/
+	env LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" make -C $(proot-version)/src/ GIT=false
