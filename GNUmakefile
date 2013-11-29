@@ -84,6 +84,7 @@ $(liblzo_a): $(libc_a)
 all_libs_a = $(libc_a) $(libtalloc_a) $(libarchive_a) $(libz_a) $(liblzo_a)
 
 proot-licenses: $(libc_a) $(libtalloc_a)
+	@echo "" >> $@
 	@echo "This version of PRoot is statically linked to the following software." >> $@
 	@echo "------------------------------------------------------------------------" >> $@
 	@echo "glibc:" >> $@
@@ -97,10 +98,9 @@ proot-licenses: $(libc_a) $(libtalloc_a)
 	@echo "The build-system, sources and licences are available on:" >> $@
 	@echo "" >> $@
 	@echo "    https://github.com/cedric-vincent/proot-static-build">> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "" >> $@
 
 care-licenses: $(all_libs_a)
+	@echo "" >> $@
 	@echo "This version of CARE is statically linked to the following software." >> $@
 	@echo "------------------------------------------------------------------------" >> $@
 	@echo "proot:" >> $@
@@ -145,15 +145,13 @@ care-licenses: $(all_libs_a)
 	@echo "The build-system, sources and licences are available on:" >> $@
 	@echo "" >> $@
 	@echo "    https://github.com/cedric-vincent/proot-static-build">> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "" >> $@
 
 care: $(all_libs_a) care-licenses
 	tar -xzf $(packages)/$(care-version).tar.gz
 	cp care-licenses $(care-version)/src/licenses
-	env LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include" make -C $(care-version)/src/ CARE=1 GIT=false
+	env OBJECTS="cli/care-licenses.o" LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include" make -C $(care-version)/src/ care GIT=false CARE_BUILD_ENV=ok
 
 proot: $(libc_a) $(libtalloc_a) proot-licenses
 	tar -xzf $(packages)/$(proot-version).tar.gz
 	cp proot-licenses $(proot-version)/src/licenses
-	env LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" make -C $(proot-version)/src/ GIT=false
+	env OBJECTS="cli/proot-licenses.o" LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" make -C $(proot-version)/src/ GIT=false
