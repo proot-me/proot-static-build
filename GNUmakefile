@@ -5,14 +5,12 @@
 #			-b /usr/include/linux/seccomp.h	\
 #			make ...
 #
-# for x86:	proot -R slackware-14.0/    make ...
+# for x86:	proot -R slackware-14.0/
 #			-b /usr/include/linux/prctl.h	\
 #			-b /usr/include/linux/seccomp.h	\
 #			make ...
 #
 # for arm:	proot -R slackwarearm-14.1/		\
-#			-b /usr/include/linux/prctl.h	\
-#			-b /usr/include/linux/seccomp.h	\
 #			-b $(which cmake)		\
 #			-q qemu-arm			\
 #			make glibc-version=glibc-2.18 ...
