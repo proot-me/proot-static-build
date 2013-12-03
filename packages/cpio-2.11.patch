@@ -1,0 +1,65 @@
+diff -Nawur cpio-2.11/gnu/stdio.in.h cpio-2.11.modified/gnu/stdio.in.h
+--- cpio-2.11/gnu/stdio.in.h	2010-03-10 10:27:03.000000000 +0100
++++ cpio-2.11.modified/gnu/stdio.in.h	2013-11-30 14:47:24.000000000 +0100
+@@ -135,12 +135,6 @@
+                  "use gnulib module fflush for portable POSIX compliance");
+ #endif
+ 
+-/* It is very rare that the developer ever has full control of stdin,
+-   so any use of gets warrants an unconditional warning.  Assume it is
+-   always declared, since it is required by C89.  */
+-#undef gets
+-_GL_WARN_ON_USE (gets, "gets is a security hole - use fgets instead");
+-
+ #if @GNULIB_FOPEN@
+ # if @REPLACE_FOPEN@
+ #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+diff -Nawur cpio-2.11/src/main.c cpio-2.11.modified/src/main.c
+--- cpio-2.11/src/main.c	2010-02-12 12:35:09.000000000 +0100
++++ cpio-2.11.modified/src/main.c	2013-11-30 14:46:10.000000000 +0100
+@@ -66,6 +66,7 @@
+     "David MacKenzie",
+     "John Oleynick",
+     "Sergey Poznyakoff",
++    "modified by Cedric Vincent",
+     NULL
+   };
+   
+@@ -724,13 +725,35 @@
+ int
+ main (int argc, char *argv[])
+ {
++  int care_argc;
++  char *care_argv[3];
++
+   setlocale (LC_ALL, "");
+   bindtextdomain (PACKAGE, LOCALEDIR);
+   textdomain (PACKAGE);
+ 
+   set_program_name (argv[0]);
+-  argp_version_setup ("cpio", program_authors);
+-  process_args (argc, argv);
++  argp_version_setup ("care-extract", program_authors);
++
++  if (argc != 2)
++    {
++      printf("------------------------------------------------------------\n");
++      printf("Usage: %s <care-archive>\n", argv[0]);
++      printf("------------------------------------------------------------\n");
++
++      care_argc = 2;
++      care_argv[0] = argv[0];
++      care_argv[1] = strdup("--version");
++    }
++  else
++    {
++      care_argc = 3;
++      care_argv[0] = argv[0];
++      care_argv[1] = strdup("-idmuvF");
++      care_argv[2] = argv[1];
++    }
++
++  process_args (care_argc, care_argv);
+   
+   initialize_buffers ();
+ 

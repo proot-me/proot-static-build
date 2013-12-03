@@ -17,6 +17,7 @@
 
 proot-version      = proot-v3.2
 care-version       = care-v2.0
+cpio-version       = cpio-2.11
 glibc-version      = glibc-2.16.0
 libtalloc-version  = talloc-2.1.0
 libarchive-version = libarchive-3.1.2
@@ -148,8 +149,18 @@ care: $(all_libs_a) care-licenses
 	tar -xzf $(packages)/$(care-version).tar.gz
 	cp care-licenses $(care-version)/src/licenses
 	env OBJECTS="cli/care-licenses.o" LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include" make -C $(care-version)/src/ care GIT=false CARE_BUILD_ENV=ok
+	cp $(care-version)/src/$@ .
+
+care-extract: $(libc_a)
+	tar -xzf $(packages)/$(cpio-version).tar.gz
+	cd $(cpio-version) 					&& \
+	  patch -p1 < ../$(packages)/$(cpio-version).patch	&& \
+	  $(env) LDFLAGS="-L$(prefix)/lib -static" ./configure	&& \
+	  $(MAKE)
+	cp $(cpio-version)/src/cpio $@
 
 proot: $(libc_a) $(libtalloc_a) proot-licenses
 	tar -xzf $(packages)/$(proot-version).tar.gz
 	cp proot-licenses $(proot-version)/src/licenses
 	env OBJECTS="cli/proot-licenses.o" LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" make -C $(proot-version)/src/ GIT=false
+	cp $(proot-version)/src/$@ .
