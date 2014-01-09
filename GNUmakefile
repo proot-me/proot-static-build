@@ -14,8 +14,16 @@
 #			-b $(which cmake)		\
 #			-q qemu-arm			\
 #			make glibc-version=glibc-2.18 ...
+#
+# for sh4:	proot -R gentoo-stage3-sh4a-20130614/	\
+#			-b $(which cmake)		\
+#			-b /usr/share/cmake-2.8		\
+#			-b $(which python)		\
+#			`python -c 'import sys; print " ".join(map(lambda x: "-b " + x, filter(bool, sys.path)))'` \
+#			-q qemu-sh4
+#			make ...
 
-proot-version      = proot-v3.2
+proot-version      = proot-v3.2.2
 care-version       = care-v2.0
 cpio-version       = cpio-2.11
 glibc-version      = glibc-2.16.0
@@ -57,6 +65,7 @@ $(libtalloc_a): $(libc_a)
 	cd $(libtalloc-version) 					&& \
 	  $(env) ./configure --prefix=$(prefix)				&& \
 	  $(MAKE) 							&& \
+	  $(MAKE) install						&& \
 	  ar qf $@ bin/default/talloc_3.o
 
 $(libarchive_a): $(libc_a) $(libz_a) $(liblzo_a)
