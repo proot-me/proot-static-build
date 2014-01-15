@@ -163,7 +163,7 @@ care-licenses: $(all_libs_a)
 care: $(all_libs_a) care-licenses
 	tar -xzf $(packages)/$(care-version).tar.gz
 	cp care-licenses $(care-version)/src/licenses
-	env OBJECTS="cli/care-licenses.o" LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include" make -C $(care-version)/src/ care GIT=false CARE_BUILD_ENV=ok
+	env OBJECTS="cli/care-licenses.o" LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include" $(MAKE) -C $(care-version)/src/ care GIT=false CARE_BUILD_ENV=ok
 	cp $(care-version)/src/$@ .
 
 care-extract: $(libc_a)
@@ -177,5 +177,5 @@ care-extract: $(libc_a)
 proot: $(libc_a) $(libtalloc_a) proot-licenses
 	tar -xzf $(packages)/$(proot-version).tar.gz
 	cp proot-licenses $(proot-version)/src/licenses
-	env OBJECTS="cli/proot-licenses.o" LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" make -C $(proot-version)/src/ GIT=false
+	env OBJECTS="cli/proot-licenses.o" LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" $(MAKE) -C $(proot-version)/src/ GIT=false
 	cp $(proot-version)/src/$@ .
