@@ -71,7 +71,13 @@ $(libtalloc_a): $(libc_a)
 $(libarchive_a): $(libc_a) $(libz_a) $(liblzo_a)
 	tar -xzf $(packages)/$(libarchive-version).tar.gz
 	cd $(libarchive-version) 					&& \
-	  $(env) cmake -DCMAKE_INSTALL_PREFIX:PATH=$(prefix) .		&& \
+	  $(env) cmake	-D HAVE_FUTIMESAT:INTERNAL=0	\
+			-D HAVE_FUTIMENSAT:INTERNAL=0	\
+			-D HAVE_FUTIMES:INTERNAL=0	\
+			-D HAVE_LUTIMES:INTERNAL=0	\
+			-D HAVE_FUTIMENS:INTERNAL=0	\
+			-D HAVE_UTIMENSAT:INTERNAL=0	\
+			-DCMAKE_INSTALL_PREFIX:PATH=$(prefix) .		&& \
 	  $(MAKE)							&& \
 	  $(MAKE) install
 
