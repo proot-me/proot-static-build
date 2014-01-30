@@ -24,7 +24,7 @@
 #			make ...
 
 proot-version      = proot-v3.2.2
-care-version       = care-v2.0
+care-version       = care-v2.1
 cpio-version       = cpio-2.11
 glibc-version      = glibc-2.16.0
 libtalloc-version  = talloc-2.1.0
@@ -44,7 +44,7 @@ libarchive_a = $(prefix)/lib/libarchive.a
 libz_a       = $(prefix)/lib/libz.a
 liblzo_a     = $(prefix)/lib/liblzo2.a
 
-env = CFLAGS="-O2 -isystem $(prefix)/include" LDFLAGS="-L$(prefix)/lib"
+env = CFLAGS="-g -O2 -isystem $(prefix)/include" LDFLAGS="-L$(prefix)/lib"
 
 VPATH := $(dir $(lastword $(MAKEFILE_LIST)))
 packages = $(VPATH)/packages
