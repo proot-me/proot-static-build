@@ -23,7 +23,7 @@
 #			-q qemu-sh4
 #			make ...
 
-proot-version      = proot-v4.0.0
+proot-version      = proot-v4.0.1
 care-version       = care-v2.1
 cpio-version       = cpio-2.11
 glibc-version      = glibc-2.16.0
