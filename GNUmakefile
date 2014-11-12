@@ -24,7 +24,7 @@
 #			make ...
 
 proot-version      = proot-v4.0.3
-care-version       = care-v2.2
+care-version       = care-v2.2.1
 cpio-version       = cpio-2.11
 glibc-version      = glibc-2.16.0
 libtalloc-version  = talloc-2.1.1
