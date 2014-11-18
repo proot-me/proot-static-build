@@ -23,9 +23,8 @@
 #			-q qemu-sh4
 #			make ...
 
-proot-version      = proot-v4.0.3
+proot-version      = proot-v5.0.0
 care-version       = care-v2.2.1
-cpio-version       = cpio-2.11
 glibc-version      = glibc-2.16.0
 libtalloc-version  = talloc-2.1.1
 libarchive-version = libarchive-3.1.2
@@ -165,14 +164,6 @@ care: $(all_libs_a) care-licenses
 	cp care-licenses $(care-version)/src/licenses
 	env OBJECTS="cli/care-licenses.o" LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include -DCARE_BINARY_IS_PORTABLE " $(MAKE) -C $(care-version)/src/ care GIT=false
 	cp $(care-version)/src/$@ .
-
-care-extract: $(libc_a)
-	tar -xzf $(packages)/$(cpio-version).tar.gz
-	cd $(cpio-version) 					&& \
-	  patch -p1 < ../$(packages)/$(cpio-version).patch	&& \
-	  $(env) LDFLAGS="-L$(prefix)/lib -static" ./configure	&& \
-	  $(MAKE)
-	cp $(cpio-version)/src/cpio $@
 
 proot: $(libc_a) $(libtalloc_a) proot-licenses
 	tar -xzf $(packages)/$(proot-version).tar.gz
