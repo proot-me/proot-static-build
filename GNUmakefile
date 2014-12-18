@@ -23,7 +23,7 @@
 #			-q qemu-sh4
 #			make ...
 
-proot-version      = proot-v5.0.0
+proot-version      = proot-v5.1.0
 care-version       = care-v2.2.1
 glibc-version      = glibc-2.16.0
 libtalloc-version  = talloc-2.1.1
