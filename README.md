@@ -6,7 +6,8 @@ PRoot static binaries were built using:
     https://github.com/proot-me/proot-static-build 
 
 The ARM one was built on x86_64 using this command: 
-   # Build PRoot/ARM statically: 
+   
+    # Build PRoot/ARM statically: 
     cd ~/git/proot-static-build 
     mkdir build-arm 
     cd build-arm 
