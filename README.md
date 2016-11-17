@@ -30,3 +30,13 @@ Where slackwarearm-14.1 was created this way:
 
     # Install all package correcty (ignore warnings): 
     ls ftp.arm.slackware.com/slackwarearm/slackwarearm-14.1/slackware/*/*.t?z | xargs -n 1 proot -q qemu-arm -S ~/rootfs/slackwarearm-14.1 -b ftp.arm.slackware.com installpkg 
+    
+## Docker build environment ##
+
+Build the Docker container:
+
+`docker build -t slackware_proot_build .`
+
+Run a build 
+
+`docker run -v `pwd`/docker-proot-static-build-master:/tmp/proot-static-build slackware_proot_build`
