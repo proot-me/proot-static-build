@@ -25,7 +25,7 @@
 
 proot-version      = proot-v5.1.1
 care-version       = care-v2.2.2
-glibc-version      = glibc-2.16.0
+glibc-version      = glibc-2.19
 libtalloc-version  = talloc-2.1.1
 libarchive-version = libarchive-3.1.2
 libz-version       = zlib-1.2.8
