@@ -1,0 +1,4 @@
+
+#make glibc-version=glibc-2.18 -f GNUmakefile proot care -j4
+make -f GNUmakefile proot care -j4
+
