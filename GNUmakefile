@@ -159,14 +159,19 @@ care-licenses: $(all_libs_a)
 	@echo "" >> $@
 	@echo "    https://github.com/cedric-vincent/proot-static-build">> $@
 
+
+all_libs: $(all_libs_a)
+
 care: $(all_libs_a) care-licenses
 	tar -xzf $(packages)/$(care-version).tar.gz
 	cp care-licenses $(care-version)/src/licenses
 	env OBJECTS="cli/care-licenses.o" LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include -DCARE_BINARY_IS_PORTABLE " $(MAKE) -C $(care-version)/src/ care GIT=false
-	cp $(care-version)/src/$@ .
+	mkdir -p ./target
+	cp $(care-version)/src/$@ ./target/
 
 proot: $(libc_a) $(libtalloc_a) proot-licenses
 	tar -xzf $(packages)/$(proot-version).tar.gz
 	cp proot-licenses $(proot-version)/src/licenses
 	env OBJECTS="cli/proot-licenses.o" LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" $(MAKE) -C $(proot-version)/src/ GIT=false
-	cp $(proot-version)/src/$@ .
+	mkdir -p ./target
+	cp $(proot-version)/src/$@ ./target/
