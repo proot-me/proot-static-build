@@ -1,13 +1,22 @@
-FROM debian:jessie
+FROM debian:jessie as builder
 MAINTAINER Jonathan Passerat-Palmbach, Imperial College London <j.passerat-palmbach@imperial.ac.uk>
 
 RUN apt-get -y update && \
     apt-get -y --no-install-recommends install build-essential gawk autoconf autotools-dev python cmake uthash-dev
 
-COPY . /opt/build
+
+COPY packages /opt/build/packages
+COPY GNUmakefile /opt/build/
 WORKDIR /opt/build
 
 RUN make -f GNUmakefile all_libs -j4
+
+FROM debian:jessie
+WORKDIR /usr
+COPY --from=builder /usr .
+WORKDIR /opt/build
+COPY --from=builder /opt/build/prefix /opt/build/prefix/
+COPY GNUmakefile /opt/build/
 
 CMD bash
 
