@@ -13,7 +13,7 @@ Build the Docker container:
 `docker build -t proot/proot-buildenv:latest -f Dockerfile.x86_64 .`
 
 Run a build
- `./build.sh make care proot -j4`
+ `./build.sh make -f GNUmakefile_tools care proot -j4`
 
 This creates a `target` folder with both static binaries for care and proot.
 
