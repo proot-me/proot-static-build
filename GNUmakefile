@@ -23,8 +23,8 @@
 #			-q qemu-sh4
 #			make ...
 
-proot-version      = proot-v5.1.1
-care-version       = care-v2.2.2
+include versions.mak
+
 glibc-version      = glibc-2.19
 libtalloc-version  = talloc-2.1.1
 libarchive-version = libarchive-3.1.2
@@ -44,12 +44,6 @@ libz_a       = $(prefix)/lib/libz.a
 liblzo_a     = $(prefix)/lib/liblzo2.a
 
 env = CFLAGS="-g -O2 -isystem $(prefix)/include" LDFLAGS="-L$(prefix)/lib"
-
-VPATH := $(dir $(lastword $(MAKEFILE_LIST)))
-packages = $(VPATH)/packages
-prefix = $(PWD)/prefix
-$(prefix):
-	mkdir $@
 
 $(libc_a):
 	tar -xzf $(packages)/$(glibc-version).tar.gz
@@ -163,18 +157,4 @@ care-licenses: $(all_libs_a)
 
 
 all_libs: $(all_libs_a) care-licenses proot-licenses
-
-care:
-	tar --transform='s,care[^/]*,$(care-version),g' -zx -f $(packages)/$(care-version).tar.gz
-	cp $(prefix)/licenses/care-licenses $(care-version)/src/licenses
-	env OBJECTS="cli/care-licenses.o" LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include -DCARE_BINARY_IS_PORTABLE " $(MAKE) -C $(care-version)/src/ care GIT=false
-	mkdir -p ./target
-	cp $(care-version)/src/$@ ./target/
-
-proot:
-	tar --transform="s,proot[^/]*,$(proot-version),g" -zx -f $(packages)/$(proot-version).tar.gz
-	cp $(prefix)/licenses/proot-licenses $(proot-version)/src/licenses
-	env OBJECTS="cli/proot-licenses.o" LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" $(MAKE) -C $(proot-version)/src/ GIT=false
-	mkdir -p ./target
-	cp $(proot-version)/src/$@ ./target/
 
