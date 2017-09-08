@@ -4,6 +4,7 @@
 
 DOCKER_IMAGE='proot/proot-buildenv:latest'
 
+BUILD_DIR="/opt/build"
 GROUP_ID=$(id -g)
 USER_ID=$(id -u)
 
@@ -30,15 +31,14 @@ mount_volumes() {
 
 ### MAIN
 
-mkdir -p ${TARGET_DIR}
+mkdir -p "${TARGET_DIR}"
 eval docker run \
     --user="${USER_ID}:${GROUP_ID}" \
     -it \
     --rm=true \
-    -a stdout \
-    -v ${TARGET_DIR}:/opt/build/target $(mount_volumes) \
-    -w /opt/build \
-    -e "PWD=/opt/build" \
-    ${DOCKER_IMAGE} \
-    $@
+    -v "${TARGET_DIR}:/opt/build/target" "$(mount_volumes)" \
+    -w "${BUILD_DIR}" \
+    -e "PWD=${BUILD_DIR}" \
+    "${DOCKER_IMAGE}" \
+    "$@"
 
