@@ -12,9 +12,13 @@ USER_ID=$(id -u)
 # must be an absolute path
 TARGET_DIR=${TARGET_DIR:-"$(pwd)/target"}
 
+PROOT_LATEST="$(pwd)/src/proot-v5.1.1.tar.gz"
+CARE_LATEST="$(pwd)/src/care-v2.2.2.tar.gz"
+
 # VOLUMES must be formatted as Docker expects them -> /path_on_host:/mountpoint
 # specify multiple volumes using the ; separator
-VOLUMES=${VOLUMES:-""}
+# if no volume specified -> mount latest items
+VOLUMES=${VOLUMES:-"${PROOT_LATEST}:/opt/build/packages/proot-latest.tar.gz;${CARE_LATEST}:/opt/build/packages/care-latest.tar.gz"}
 
 ### FUNCTIONS
 
