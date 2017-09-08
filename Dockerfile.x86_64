@@ -6,7 +6,7 @@ RUN apt-get -y update && \
 
 
 COPY packages /opt/build/packages
-COPY GNUmakefile /opt/build/
+COPY versions.mak GNUmakefile /opt/build/
 WORKDIR /opt/build
 
 RUN make -f GNUmakefile all_libs -j4
@@ -15,8 +15,9 @@ FROM debian:jessie
 WORKDIR /usr
 COPY --from=builder /usr .
 WORKDIR /opt/build
+RUN chmod 1777 /opt/build
 COPY --from=builder /opt/build/prefix /opt/build/prefix/
-COPY GNUmakefile /opt/build/
+COPY versions.mak GNUmakefile_tools /opt/build/
 
 CMD bash
 
