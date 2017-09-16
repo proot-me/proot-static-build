@@ -10,18 +10,17 @@ USER_ID=$(id -u)
 
 # must be an absolute path
 TARGET_DIR=${TARGET_DIR:-"$(pwd)/target"}
-
 VERSIONS_FILE="$(dirname $(readlink -f $0))/versions.mak"
 
 PROOT_VERSION="$(grep 'proot-version' ${VERSIONS_FILE} | tr -s ' ' | cut -d ' ' -f 3)"
 CARE_VERSION="$(grep 'care-version' ${VERSIONS_FILE} | tr -s ' ' | cut -d ' ' -f 3)"
-PROOT_LATEST="$(pwd)/src/${PROOT_VERSION}.tar.gz"
-CARE_LATEST="$(pwd)/src/${CARE_VERSION}.tar.gz"
+PROOT_TARBALL=${PROOT_TARBALL:-"$(pwd)/src/${PROOT_VERSION}.tar.gz"}
+CARE_TARBALL=${CARE_TARBALL:-"$(pwd)/src/${CARE_VERSION}.tar.gz"}
 
 # VOLUMES must be formatted as Docker expects them -> /path_on_host:/mountpoint
 # specify multiple volumes using the ; separator
 # if no volume specified -> mount latest items
-VOLUMES=${VOLUMES:-"${PROOT_LATEST}:/opt/build/packages/${PROOT_VERSION}.tar.gz;${CARE_LATEST}:/opt/build/packages/${CARE_VERSION}.tar.gz"}
+VOLUMES="${PROOT_TARBALL}:/opt/build/packages/${PROOT_VERSION}.tar.gz;${CARE_TARBALL}:/opt/build/packages/${CARE_VERSION}.tar.gz"
 
 ### FUNCTIONS
 
@@ -41,7 +40,6 @@ eval docker run \
     -it \
     --rm=true \
     -v "${TARGET_DIR}:/opt/build/target" "$(mount_volumes)" \
-    -v "${VERSIONS_FILE}:/opt/build/versions.mak" \
     -w "${BUILD_DIR}" \
     -e "PWD=${BUILD_DIR}" \
     "${DOCKER_IMAGE}" \

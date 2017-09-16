@@ -13,21 +13,19 @@ Build the Docker container:
 `docker build -t proot/proot-buildenv:latest -f Dockerfile.x86_64 .`
 
 Run a build
- `./build.sh make -f GNUmakefile_tools care proot -j4`
+ `./build.sh make care proot -j4`
 
 This creates a `target` folder with both static binaries for care and proot.
 
 ## Special variables
 
-If needed you can override the mountpoints within the container by prefixing the call to build.sh with these variables.
+If needed you can override the default values by prefixing the call to `build.sh` with these variables.
 
-### `VOLUMES`
+### `PROOT_TARBALL` and `CARE_TARBALL`
 
-  - Must be formatted as Docker expects them -> `/path_on_host:/mountpoint`
-  - Specify multiple volumes using the `;` separator
-  - The target in the containers **should not be changed** unless the container itself has been rebuilt with different paths
-  - It is necessary to wrap the whole expression passed to the variable in `""`
-  - Example: `VOLUMES="/data/my_modified_proot.tar.gz:/opt/build/packages/proot-latest.tar.gz;/data/my_modified_care.tar.gz:/opt/build/packages/care-latest.tar.gz"`
+  - Must point to an **absolute path**
+  - Contains the path to a tarball of the source directories (including the parent project directory, see *Important notes* below to learn how to generate such a tarball)
+  - Example: `PROOT_TARBALL="/tmp/proot-portmap-seccomp.tar.gz" CARE_TARBALL="/tmp/care-portmap-seccomp.tar.gz" ./build.sh make care proot -j4`
 
 ### `TARGET_DIR`
 

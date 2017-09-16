@@ -17,7 +17,8 @@ COPY --from=builder /usr .
 WORKDIR /opt/build
 RUN chmod 1777 /opt/build
 COPY --from=builder /opt/build/prefix /opt/build/prefix/
-COPY versions.mak GNUmakefile_tools /opt/build/
+COPY versions.mak /opt/build/
+COPY GNUmakefile_tools /opt/build/GNUmakefile
 
 CMD bash
 
