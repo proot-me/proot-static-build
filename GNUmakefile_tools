@@ -1,0 +1,16 @@
+include versions.mak
+
+care:
+	tar --transform='s,care-[^/]*,$(care-version),g' -zx -f $(packages)/$(care-version).tar.gz
+	cp $(prefix)/licenses/care-licenses $(care-version)/src/licenses
+	env OBJECTS="cli/care-licenses.o" LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include -DCARE_BINARY_IS_PORTABLE " $(MAKE) -C $(care-version)/src/ care GIT=false
+	mkdir -p ./target
+	cp $(care-version)/src/$@ $(prefix)/licenses/care-licenses ./target/
+
+proot:
+	tar --transform="s,proot-[^/]*,$(proot-version),g" -zx -f $(packages)/$(proot-version).tar.gz
+	cp $(prefix)/licenses/proot-licenses $(proot-version)/src/licenses
+	env OBJECTS="cli/proot-licenses.o" LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" $(MAKE) -C $(proot-version)/src/ GIT=false
+	mkdir -p ./target
+	cp $(proot-version)/src/$@ $(prefix)/licenses/proot-licenses ./target/
+

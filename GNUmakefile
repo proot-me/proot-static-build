@@ -23,9 +23,9 @@
 #			-q qemu-sh4
 #			make ...
 
-proot-version      = proot-v5.1.0
-care-version       = care-v2.2.1
-glibc-version      = glibc-2.16.0
+include versions.mak
+
+glibc-version      = glibc-2.19
 libtalloc-version  = talloc-2.1.1
 libarchive-version = libarchive-3.1.2
 libz-version       = zlib-1.2.8
@@ -44,12 +44,6 @@ libz_a       = $(prefix)/lib/libz.a
 liblzo_a     = $(prefix)/lib/liblzo2.a
 
 env = CFLAGS="-g -O2 -isystem $(prefix)/include" LDFLAGS="-L$(prefix)/lib"
-
-VPATH := $(dir $(lastword $(MAKEFILE_LIST)))
-packages = $(VPATH)/packages
-prefix = $(PWD)/prefix
-$(prefix):
-	mkdir $@
 
 $(libc_a):
 	tar -xzf $(packages)/$(glibc-version).tar.gz
@@ -97,76 +91,70 @@ $(liblzo_a): $(libc_a)
 all_libs_a = $(libc_a) $(libtalloc_a) $(libarchive_a) $(libz_a) $(liblzo_a)
 
 proot-licenses: $(libc_a) $(libtalloc_a)
-	@echo "" >> $@
-	@echo "This version of PRoot is statically linked to the following software." >> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "glibc:" >> $@
-	@echo "" >> $@
-	@$(glibc-license) >> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "libtalloc:" >> $@
-	@echo "" >> $@
-	@$(libtalloc-license) >> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "The build-system, sources and licences are available on:" >> $@
-	@echo "" >> $@
-	@echo "    https://github.com/cedric-vincent/proot-static-build">> $@
+	mkdir -p $(prefix)/licenses
+	@echo "" >> $(prefix)/licenses/$@
+	@echo "This version of PRoot is statically linked to the following software." >> $(prefix)/licenses/$@
+	@echo "------------------------------------------------------------------------" >> $(prefix)/licenses/$@
+	@echo "glibc:" >> $(prefix)/licenses/$@
+	@echo "" >> $(prefix)/licenses/$@
+	@$(glibc-license) >> $(prefix)/licenses/$@
+	@echo "------------------------------------------------------------------------" >> $(prefix)/licenses/$@
+	@echo "libtalloc:" >> $(prefix)/licenses/$@
+	@echo "" >> $(prefix)/licenses/$@
+	@$(libtalloc-license) >> $(prefix)/licenses/$@
+	@echo "------------------------------------------------------------------------" >> $(prefix)/licenses/$@
+	@echo "The build-system, sources and licences are available on:" >> $(prefix)/licenses/$@
+	@echo "" >> $(prefix)/licenses/$@
+	@echo "    https://github.com/cedric-vincent/proot-static-build">> $(prefix)/licenses/$@
 
 care-licenses: $(all_libs_a)
-	@echo "" >> $@
-	@echo "This version of CARE is statically linked to the following software." >> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "proot:" >> $@
-	@echo "" >> $@
-	@echo " * Copyright (C) 2013 STMicroelectronics" >> $@
-	@echo " *" >> $@
-	@echo " * This program is free software; you can redistribute it and/or" >> $@
-	@echo " * modify it under the terms of the GNU General Public License as" >> $@
-	@echo " * published by the Free Software Foundation; either version 2 of the" >> $@
-	@echo " * License, or (at your option) any later version." >> $@
-	@echo " *" >> $@
-	@echo " * This program is distributed in the hope that it will be useful, but" >> $@
-	@echo " * WITHOUT ANY WARRANTY; without even the implied warranty of" >> $@
-	@echo " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU" >> $@
-	@echo " * General Public License for more details." >> $@
-	@echo " *" >> $@
-	@echo " * You should have received a copy of the GNU General Public License" >> $@
-	@echo " * along with this program; if not, write to the Free Software" >> $@
-	@echo " * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA" >> $@
-	@echo " * 02110-1301 USA." >> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "glibc:" >> $@
-	@echo "" >> $@
-	@$(glibc-license) >> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "libtalloc:" >> $@
-	@echo "" >> $@
-	@$(libtalloc-license) >> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "libarchive:" >> $@
-	@echo "" >> $@
-	@$(libarchive-license) >> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "zlib:" >> $@
-	@echo "" >> $@
-	@$(libz-license) >> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "liblzo:" >> $@
-	@echo "" >> $@
-	@$(liblzo-license) >> $@
-	@echo "------------------------------------------------------------------------" >> $@
-	@echo "The build-system, sources and licences are available on:" >> $@
-	@echo "" >> $@
-	@echo "    https://github.com/cedric-vincent/proot-static-build">> $@
+	mkdir -p $(prefix)/licenses
+	@echo "" >> $(prefix)/licenses/$@
+	@echo "This version of CARE is statically linked to the following software." >> $(prefix)/licenses/$@
+	@echo "------------------------------------------------------------------------" >> $(prefix)/licenses/$@
+	@echo "proot:" >> $(prefix)/licenses/$@
+	@echo "" >> $(prefix)/licenses/$@
+	@echo " * Copyright (C) 2013 STMicroelectronics" >> $(prefix)/licenses/$@
+	@echo " *" >> $(prefix)/licenses/$@
+	@echo " * This program is free software; you can redistribute it and/or" >> $(prefix)/licenses/$@
+	@echo " * modify it under the terms of the GNU General Public License as" >> $(prefix)/licenses/$@
+	@echo " * published by the Free Software Foundation; either version 2 of the" >> $(prefix)/licenses/$@
+	@echo " * License, or (at your option) any later version." >> $(prefix)/licenses/$@
+	@echo " *" >> $(prefix)/licenses/$@
+	@echo " * This program is distributed in the hope that it will be useful, but" >> $(prefix)/licenses/$@
+	@echo " * WITHOUT ANY WARRANTY; without even the implied warranty of" >> $(prefix)/licenses/$@
+	@echo " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU" >> $(prefix)/licenses/$@
+	@echo " * General Public License for more details." >> $(prefix)/licenses/$@
+	@echo " *" >> $(prefix)/licenses/$@
+	@echo " * You should have received a copy of the GNU General Public License" >> $(prefix)/licenses/$@
+	@echo " * along with this program; if not, write to the Free Software" >> $(prefix)/licenses/$@
+	@echo " * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA" >> $(prefix)/licenses/$@
+	@echo " * 02110-1301 USA." >> $(prefix)/licenses/$@
+	@echo "------------------------------------------------------------------------" >> $(prefix)/licenses/$@
+	@echo "glibc:" >> $(prefix)/licenses/$@
+	@echo "" >> $(prefix)/licenses/$@
+	@$(glibc-license) >> $(prefix)/licenses/$@
+	@echo "------------------------------------------------------------------------" >> $(prefix)/licenses/$@
+	@echo "libtalloc:" >> $(prefix)/licenses/$@
+	@echo "" >> $(prefix)/licenses/$@
+	@$(libtalloc-license) >> $(prefix)/licenses/$@
+	@echo "------------------------------------------------------------------------" >> $(prefix)/licenses/$@
+	@echo "libarchive:" >> $(prefix)/licenses/$@
+	@echo "" >> $(prefix)/licenses/$@
+	@$(libarchive-license) >> $(prefix)/licenses/$@
+	@echo "------------------------------------------------------------------------" >> $(prefix)/licenses/$@
+	@echo "zlib:" >> $(prefix)/licenses/$@
+	@echo "" >> $(prefix)/licenses/$@
+	@$(libz-license) >> $(prefix)/licenses/$@
+	@echo "------------------------------------------------------------------------" >> $(prefix)/licenses/$@
+	@echo "liblzo:" >> $(prefix)/licenses/$@
+	@echo "" >> $(prefix)/licenses/$@
+	@$(liblzo-license) >> $(prefix)/licenses/$@
+	@echo "------------------------------------------------------------------------" >> $(prefix)/licenses/$@
+	@echo "The build-system, sources and licences are available on:" >> $(prefix)/licenses/$@
+	@echo "" >> $(prefix)/licenses/$@
+	@echo "    https://github.com/cedric-vincent/proot-static-build">> $(prefix)/licenses/$@
 
-care: $(all_libs_a) care-licenses
-	tar -xzf $(packages)/$(care-version).tar.gz
-	cp care-licenses $(care-version)/src/licenses
-	env OBJECTS="cli/care-licenses.o" LDFLAGS="-static -L$(prefix)/lib -larchive -lz -llzo2" CPPFLAGS="-isystem $(prefix)/include -DCARE_BINARY_IS_PORTABLE " $(MAKE) -C $(care-version)/src/ care GIT=false
-	cp $(care-version)/src/$@ .
 
-proot: $(libc_a) $(libtalloc_a) proot-licenses
-	tar -xzf $(packages)/$(proot-version).tar.gz
-	cp proot-licenses $(proot-version)/src/licenses
-	env OBJECTS="cli/proot-licenses.o" LDFLAGS="-static -L$(prefix)/lib" CPPFLAGS="-isystem $(prefix)/include" $(MAKE) -C $(proot-version)/src/ GIT=false
-	cp $(proot-version)/src/$@ .
+all_libs: $(all_libs_a) care-licenses proot-licenses
+
